@@ -13,8 +13,8 @@ import {
   Output,
   Self,
   ViewChild,
-} from '@angular/core';
-import {MatFormFieldControl} from '@angular/material/form-field';
+} from "@angular/core";
+import { MatFormFieldControl } from "@angular/material/form-field";
 
 import {
   FormGroupDirective,
@@ -23,7 +23,7 @@ import {
   NgForm,
   NG_VALIDATORS,
   ReactiveFormsModule,
-} from '@angular/forms';
+} from "@angular/forms";
 import {
   AsYouType,
   CountryCode as CC,
@@ -32,53 +32,28 @@ import {
   NationalNumber,
   parsePhoneNumberFromString,
   PhoneNumber,
-} from 'libphonenumber-js';
-import {CountryCode, Examples} from './data/country-code';
-import {Country} from './model/country.model';
-import {PhoneNumberFormat} from './model/phone-number-format.model';
-import {phoneNumberValidator} from './ngx-mat-intl-tel-input.validator';
+} from "libphonenumber-js";
+import { CountryCode, Examples } from "./data/country-code";
+import { Country } from "./model/country.model";
+import { PhoneNumberFormat } from "./model/phone-number-format.model";
+import { phoneNumberValidator } from "./ngx-mat-intl-tel-input.validator";
 
-import {FocusMonitor} from '@angular/cdk/a11y';
-import {coerceBooleanProperty} from '@angular/cdk/coercion';
-import {CommonModule} from '@angular/common';
-import {MatButtonModule} from '@angular/material/button';
-import {
-  CanUpdateErrorState,
-  ErrorStateMatcher,
-  mixinErrorState,
-  _AbstractConstructor,
-  _Constructor,
-} from '@angular/material/core';
-import {MatDividerModule} from '@angular/material/divider';
-import {MatInput, MatInputModule} from '@angular/material/input';
-import {MatMenu, MatMenuModule} from '@angular/material/menu';
-import {Subject} from 'rxjs';
-import {SearchPipe} from './search.pipe';
-
-class NgxMatIntlTelInputBase {
-  readonly stateChanges = new Subject<void>();
-
-  constructor(
-    public _defaultErrorStateMatcher: ErrorStateMatcher,
-    public _parentForm: NgForm,
-    public _parentFormGroup: FormGroupDirective,
-    /** @docs-private */
-    public ngControl: NgControl
-  ) {
-  }
-}
-
-declare type CanUpdateErrorStateCtor = _Constructor<CanUpdateErrorState> &
-  _AbstractConstructor<CanUpdateErrorState>;
-
-const _NgxMatIntlTelInputMixinBase: CanUpdateErrorStateCtor &
-  typeof NgxMatIntlTelInputBase = mixinErrorState(NgxMatIntlTelInputBase);
+import { FocusMonitor } from "@angular/cdk/a11y";
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { CommonModule } from "@angular/common";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatInput, MatInputModule } from "@angular/material/input";
+import { MatMenu, MatMenuModule } from "@angular/material/menu";
+import { Subject } from "rxjs";
+import { SearchPipe } from "./search.pipe";
+import { ErrorStateMatcher } from "@angular/material/core";
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'ngx-mat-intl-tel-input',
-  templateUrl: './ngx-mat-intl-tel-input.component.html',
-  styleUrls: ['./ngx-mat-intl-tel-input.component.scss'],
+  selector: "ngx-mat-intl-tel-input",
+  templateUrl: "./ngx-mat-intl-tel-input.component.html",
+  styleUrls: ["./ngx-mat-intl-tel-input.component.scss"],
   standalone: true,
   imports: [
     CommonModule,
@@ -88,11 +63,11 @@ const _NgxMatIntlTelInputMixinBase: CanUpdateErrorStateCtor &
     MatButtonModule,
     MatDividerModule,
     ReactiveFormsModule,
-    SearchPipe
+    SearchPipe,
   ],
   providers: [
     CountryCode,
-    {provide: MatFormFieldControl, useExisting: NgxMatIntlTelInputComponent},
+    { provide: MatFormFieldControl, useExisting: NgxMatIntlTelInputComponent },
     {
       provide: NG_VALIDATORS,
       useValue: phoneNumberValidator,
@@ -102,12 +77,8 @@ const _NgxMatIntlTelInputMixinBase: CanUpdateErrorStateCtor &
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NgxMatIntlTelInputComponent
-  extends _NgxMatIntlTelInputMixinBase
-  implements OnInit,
-    OnDestroy,
-    DoCheck,
-    CanUpdateErrorState,
-    MatFormFieldControl<any> {
+  implements OnInit, OnDestroy, MatFormFieldControl<any>
+{
   static nextId = 0;
 
   @Input() preferredCountries: Array<string> = [];
@@ -119,7 +90,7 @@ export class NgxMatIntlTelInputComponent
   @Input() errorStateMatcher: ErrorStateMatcher = new ErrorStateMatcher();
   @Input() enableSearch = false;
   @Input() searchPlaceholder: string | undefined;
-  @Input() describedBy = '';
+  @Input() describedBy = "";
 
   @Input()
   get format(): PhoneNumberFormat {
@@ -140,7 +111,7 @@ export class NgxMatIntlTelInputComponent
   focused = false;
   @HostBinding()
   id = `ngx-mat-intl-tel-input-${NgxMatIntlTelInputComponent.nextId++}`;
-  phoneNumber: NationalNumber | undefined;
+  phoneNumber: NationalNumber | string | undefined;
   allCountries: Array<Country> = [];
   preferredCountriesInDropDown: Array<Country> = [];
   selectedCountry: Country | undefined;
@@ -150,18 +121,20 @@ export class NgxMatIntlTelInputComponent
   @Output() countryChanged = new EventEmitter<Country>();
 
   private previousFormattedNumber: string | undefined;
-  private _format: PhoneNumberFormat = 'default';
+  private _format: PhoneNumberFormat = "default";
 
   static getPhoneNumberPlaceHolder(countryISOCode: CC): string | undefined {
     const result = getExampleNumber(countryISOCode, Examples);
     return !!result ? result.number.toString() : undefined;
   }
 
-  onTouched = () => {
-  };
+  onTouched = () => {};
 
-  propagateChange = (_: any) => {
-  };
+  get errorState() {
+    return this.ngControl.errors !== null && !!this.ngControl.touched;
+  }
+
+  propagateChange = (_: any) => {};
 
   constructor(
     private _changeDetectorRef: ChangeDetectorRef,
@@ -173,7 +146,6 @@ export class NgxMatIntlTelInputComponent
     @Optional() _parentFormGroup: FormGroupDirective,
     _defaultErrorStateMatcher: ErrorStateMatcher
   ) {
-    super(_defaultErrorStateMatcher, _parentForm, _parentFormGroup, ngControl);
     fm.monitor(elRef, true).subscribe((origin) => {
       if (this.focused && !origin) {
         this.onTouched();
@@ -189,7 +161,7 @@ export class NgxMatIntlTelInputComponent
 
   ngOnInit(): void {
     if (!this.searchPlaceholder) {
-      this.searchPlaceholder = 'Search ...';
+      this.searchPlaceholder = "Search ...";
     }
     if (this.preferredCountries.length) {
       this.preferredCountries.forEach((iso2) => {
@@ -221,16 +193,10 @@ export class NgxMatIntlTelInputComponent
     this.stateChanges.next(undefined);
   }
 
-  ngDoCheck(): void {
-    if (this.ngControl) {
-      this.updateErrorState();
-    }
-  }
-
   public onPhoneNumberChange(): void {
     try {
       this.numberInstance = parsePhoneNumberFromString(
-        this.phoneNumber?.toString() || '',
+        this.phoneNumber?.toString() || "",
         this.selectedCountry?.iso2.toUpperCase() as CC
       );
       this.formatAsYouTypeIfEnabled();
@@ -269,13 +235,13 @@ export class NgxMatIntlTelInputComponent
   public getCountry(code: string): Country {
     return (
       this.allCountries.find((c) => c.iso2 === code.toLowerCase()) || {
-        name: 'UN',
-        iso2: 'UN',
-        dialCode: '',
+        name: "UN",
+        iso2: "UN",
+        dialCode: "",
         priority: 0,
         areaCodes: undefined,
-        flagClass: 'UN',
-        placeHolder: '',
+        flagClass: "UN",
+        placeHolder: "",
       }
     );
   }
@@ -296,7 +262,7 @@ export class NgxMatIntlTelInputComponent
         priority: +c[3] || 0,
         areaCodes: (c[4] as string[]) || undefined,
         flagClass: c[1].toString().toUpperCase(),
-        placeHolder: '',
+        placeHolder: "",
       };
 
       if (this.enablePlaceholder) {
@@ -361,14 +327,14 @@ export class NgxMatIntlTelInputComponent
     return !this.phoneNumber;
   }
 
-  @HostBinding('class.ngx-floating')
+  @HostBinding("class.ngx-floating")
   get shouldLabelFloat(): boolean {
     return this.focused || !this.empty;
   }
 
   @Input()
   get placeholder(): string {
-    return this._placeholder || '';
+    return this._placeholder || "";
   }
 
   set placeholder(value: string) {
@@ -397,17 +363,17 @@ export class NgxMatIntlTelInputComponent
   }
 
   setDescribedByIds(ids: string[]) {
-    this.describedBy = ids.join(' ');
+    this.describedBy = ids.join(" ");
   }
 
   onContainerClick(event: MouseEvent): void {
-    if ((event.target as Element).tagName.toLowerCase() !== 'input') {
-      this.elRef.nativeElement.querySelector('input')!.focus();
+    if ((event.target as Element).tagName.toLowerCase() !== "input") {
+      this.elRef.nativeElement.querySelector("input")!.focus();
     }
   }
 
   reset(): void {
-    this.phoneNumber = '';
+    this.phoneNumber = "";
     this.propagateChange(null);
 
     this._changeDetectorRef.markForCheck();
@@ -421,12 +387,12 @@ export class NgxMatIntlTelInputComponent
 
   private get formattedPhoneNumber(): string {
     if (!this.numberInstance) {
-      return this.phoneNumber?.toString() || '';
+      return this.phoneNumber?.toString() || "";
     }
     switch (this.format) {
-      case 'national':
+      case "national":
         return this.numberInstance.formatNational();
-      case 'international':
+      case "international":
         return this.numberInstance.formatInternational();
       default:
         return this.numberInstance.nationalNumber.toString();
@@ -434,7 +400,7 @@ export class NgxMatIntlTelInputComponent
   }
 
   private formatAsYouTypeIfEnabled(): void {
-    if (this.format === 'default') {
+    if (this.format === "default") {
       return;
     }
     const asYouType: AsYouType = new AsYouType(
@@ -444,7 +410,7 @@ export class NgxMatIntlTelInputComponent
     if (
       this.phoneNumber
         ?.toString()
-        .startsWith(this.previousFormattedNumber || '')
+        .startsWith(this.previousFormattedNumber || "")
     ) {
       this.phoneNumber = asYouType.input(this.phoneNumber.toString());
     }
