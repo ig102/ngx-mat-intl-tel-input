@@ -59,8 +59,6 @@
     },
     ".": {
       "types": "./index.d.ts",
-      "esm2022": "./esm2022/ngx-mat-intl-tel-input.mjs",
-      "esm": "./esm2022/ngx-mat-intl-tel-input.mjs",
       "default": "./fesm2022/ngx-mat-intl-tel-input.mjs"
     }
   },
